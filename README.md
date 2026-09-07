@@ -4,10 +4,6 @@
 
 **How Individual Preference Diversity Changes Emergent Segregation**
 
-> This is a preliminary Checkpoint 1 proposal. It must be discussed with the facilitator and agreed by both group members.
-
-## Research Question
-
 **Compared with a population in which everyone has the same similarity preference, how does variation in individual preference thresholds affect the final segregation level and the time required for a Schelling model to stabilise?**
 
 ## Why This Is a Complex System
