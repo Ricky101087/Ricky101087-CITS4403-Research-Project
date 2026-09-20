@@ -1,3 +1,6 @@
+import random
+
+
 class Grid:
     """
     A 2D grid environment for the Schelling segregation model.
@@ -61,3 +64,27 @@ class Grid:
                 f"Position ({row}, {col}) is out of bounds"
             )
         return self._cells[row][col] is None
+    
+    def empty_cells(self):
+        empty = []
+        for row in range(self.height):
+            for col in range(self.width):
+                if self.is_empty(row, col):
+                    empty.append((row, col))
+        return empty
+    
+    def num_empty(self):
+        return len(self.empty_cells())  
+    def num_occupied(self):
+        return (self.width * self.height) - self.num_empty()
+    
+    def total_cells(self):
+        return self.width * self.height
+    
+    def random_empty_cell(self):
+        empty = self.empty_cells()
+        if not empty:
+            return None
+        return random.choice(empty)
+
+        
