@@ -1,104 +1,152 @@
-# CITS4403 Research Project
-
-## Provisional Title
-
-**How Individual Preference Diversity Changes Emergent Segregation**
-
-**Compared with a population in which everyone has the same similarity preference, how does variation in individual preference thresholds affect the final segregation level and the time required for a Schelling model to stabilise?**
-
-## Why This Is a Complex System
-
-Each agent follows a simple local rule and sees only nearby neighbours. No agent controls the whole grid, but repeated local moves can produce large-scale clusters and segregation. The global pattern is therefore an emergent outcome of many interacting agents.
-
-## Base Model
-
-- A `40 × 40` grid represents a city.
-- Each occupied cell contains a Group A or Group B agent; approximately 10% of cells are initially empty.
-- An agent observes its eight surrounding cells (Moore neighbourhood).
-- Let `s` be the fraction of occupied neighbours belonging to the same group.
-- Each agent has a preference threshold `q`. It is satisfied when `s >= q`.
-- An unsatisfied agent moves to a randomly selected empty cell.
-- Updates continue until all agents are satisfied or a maximum number of steps is reached.
-
-## Main Comparison
-
-1. **Homogeneous population:** every agent has the same threshold `q`.
-2. **Heterogeneous population:** agents have different thresholds drawn from a bounded distribution with the same mean `q`.
-
-Using the same mean preference makes the comparison more controlled: the main difference is whether preferences are identical or diverse.
-
-## Hypothesis
-
-Preference heterogeneity will change the tipping behaviour of the model. In particular, more tolerant agents may remain in mixed areas while less tolerant agents form clusters, producing different final patterns and stabilisation times from a homogeneous population with the same average preference.
-
-This hypothesis intentionally does not assume that heterogeneity always reduces segregation; the direction and size of the effect will be determined experimentally.
-
-## Experimental Design
-
-### Independent Variables
-
-- Mean similarity-preference threshold: provisionally `0.20, 0.30, 0.40, 0.50, 0.60`.
-- Threshold variation: `0` for the homogeneous baseline, then several non-zero standard deviations.
-- Vacancy rate: begin with `10%`; test additional values only after the main experiment works.
-
-### Controlled Variables
-
-- Grid size.
-- Group proportions.
-- Initial vacancy rate in the main experiment.
-- Neighbourhood definition.
-- Movement rule.
-- Maximum number of updates.
-
-### Measurements
-
-- **Segregation index:** average fraction of same-group neighbours among occupied neighbours.
-- Fraction of satisfied agents over time.
-- Number of moves or iterations required to stabilise.
-- Number and size of same-group clusters as an optional extension.
-
-### Replication
-
-- Run at least 30 random initialisations for every condition.
-- Report mean results, distributions, and confidence intervals.
-- Show initial and final grids for qualitative comparison.
-- Plot segregation and satisfaction over time.
-
-## Independent Investigation
-
-The classic model normally begins with one common preference rule. This project explicitly compares two modelling assumptions—identical versus diverse individual preferences—while holding the average preference constant. It investigates whether a simplifying assumption at the individual level changes the emergent system-level conclusion.
-
-## Minimum Viable Project
-
-If time is limited, complete only:
-
-- one grid size;
-- one vacancy rate;
-- homogeneous versus heterogeneous thresholds;
-- five mean-threshold values;
-- 30 repetitions per condition;
-- final segregation, stabilisation time, and initial/final visualisations.
-
-No real-world dataset, network model, or advanced optimisation is required for this minimum version.
-
-## Limitations
-
-- The two groups and square grid are abstract representations.
-- Decisions depend only on nearby group composition.
-- Moving has no financial, geographic, or social cost.
-- Agents do not learn or change preferences.
-- The model demonstrates possible mechanisms rather than explaining a specific real city.
-
-## Possible Extensions
-
-Add only after the minimum experiment is complete:
-
-- movement to a satisfying vacancy rather than a random vacancy;
-- different vacancy rates;
-- different neighbourhood radii;
-- asymmetric preference distributions between the two groups.
-
-## Initial References
-
-- Schelling, T. C. (1971). *Dynamic models of segregation*. The Journal of Mathematical Sociology, 1(2), 143–186. https://doi.org/10.1080/0022250X.1971.9989794
-- Goles Domic, N., Goles, E., & Rica, S. (2011). *Dynamics and complexity of the Schelling segregation model*. Physical Review E, 83, 056111. https://doi.org/10.1103/PhysRevE.83.056111
+CITS4403 Research Project
+How Preference Diversity, Mobility, and Movement Behaviour Affect Emergent
+Segregation
+Research Question
+How do preference diversity, mobility, and movement behaviour interact to affect the
+final segregation level and stabilisation time of a Schelling model?
+Why This Is a Complex System
+Segregation in the Schelling model is an example of an emergent phenomenon. Individual
+agents make decisions based only on the composition of their local neighbourhood, yet
+repeated individual decisions can produce large-scale patterns of segregation across the entire
+population.
+The proposed model extends the standard Schelling model by introducing differences in how
+individual agents make relocation decisions. Rather than assuming that all agents behave
+identically, agents can differ in their preference for similar neighbours, their mobility, and
+their movement behaviour.
+Preference determines how tolerant an agent is of neighbours from another group. Mobility
+determines the range of locations an agent can access when dissatisfied. Movement behaviour
+determines how the agent selects a new location from those available to it.
+These individual-level differences may interact in non-linear ways. For example, increasing
+an agent's mobility may have little effect if the agent moves randomly, but may have a larger
+effect if the agent actively searches for a more suitable location. Similarly, preference
+diversity may produce different system-level outcomes depending on how easily agents can
+relocate.
+The project therefore investigates how relatively simple individual rules and characteristics
+can interact to produce different global patterns of segregation.
+Base Model
+The project will use the Schelling segregation model as its foundation.
+The environment will consist of a 40 × 40 grid containing two groups of agents, referred to
+as Group A and Group B. Approximately 10% of the grid cells will initially be empty,
+allowing agents to relocate.
+Each agent will have a similarity preference threshold, represented by q. For an agent, the
+proportion of occupied neighbouring cells containing members of the same group is
+calculated as:
+same-group neighbours
+𝑠 =
+total occupied neighbours
+An agent is considered satisfied when:
+𝑠 ≥ 𝑞
+If an agent is dissatisfied, it is allowed to attempt to relocate to another empty location.
+The model will use a Moore neighbourhood, meaning that each agent considers the eight
+cells surrounding its current location.
+The simulation will continue until the population reaches a stable state or a predefined
+maximum number of iterations is reached.
+Extended Model
+The proposed model introduces three extensions to the basic Schelling model:
+1. Preference diversity
+2. Mobility
+3. Movement behaviour
+These variables will be investigated individually and in combination.
+1. Preference Diversity
+In the standard model, all agents can be given the same similarity preference threshold. The
+extended model allows agents to have different thresholds.
+For example, a population could have:
+Agent 1: q = 0.30
+Agent 2: q = 0.40
+Agent 3: q = 0.50
+Agent 4: q = 0.60
+while another population could have:
+Every agent: q = 0.45
+To isolate the effect of diversity, experiments will control the mean preference threshold
+while changing the amount of variation around that mean.
+Possible conditions are:
+• No diversity: all agents have the same threshold.
+• Low diversity: agents have small differences in thresholds.
+• High diversity: agents have larger differences in thresholds.
+This allows the experiment to investigate whether populations with the same average
+preference can produce different outcomes simply because individual preferences are
+distributed differently.
+2. Mobility
+Mobility represents how far an agent can search when attempting to relocate.
+Rather than assuming that every dissatisfied agent can access every empty cell in the grid, the
+agent will only consider vacant locations within a specified movement range.
+For example:
+• Low mobility: movement radius = 2 cells
+• Medium mobility: movement radius = 5 cells
+• High mobility: movement radius = 10 cells
+The mobility range therefore determines the set of possible locations available to an agent.
+A highly mobile agent can potentially access a much larger part of the environment, while a
+low-mobility agent is restricted to locations close to its current position.
+3. Movement Behaviour
+Agents will also differ in how they select a new location.
+At least two movement behaviours will be investigated:
+Random behaviour
+A dissatisfied agent selects a random available location within its mobility range.
+The agent does not compare all available locations before moving.
+Improving behaviour
+A dissatisfied agent evaluates available locations within its mobility range and selects a
+location that provides a higher level of similarity than its current location.
+An optional third behaviour can be introduced if computationally feasible:
+Best-fit behaviour
+The agent evaluates the available locations within its mobility range and selects the location
+with the highest similarity.
+This creates a distinction between simply having the ability to move and actively using that
+ability to find a preferred location.
+Agent Representation
+Each agent can therefore be represented by several attributes:
+Attribute Description
+Group Group A or Group B
+Preference q Minimum proportion of same-group neighbours required for satisfaction
+Mobility m Maximum distance the agent can search when relocating
+Behaviour b Rule used to select a new location
+For example:
+Agent 1
+Group: A
+Preference: 0.60
+Mobility: 10
+Behaviour: Improving
+could behave very differently from:
+Agent 2
+Group: A
+Preference: 0.30
+Mobility: 2
+Behaviour: Random
+even though both agents belong to the same group.
+Hypothesis
+We hypothesise that preference diversity, mobility, and movement behaviour will influence
+the emergent segregation patterns of the system.
+In particular, the effect of one variable may depend on the values of the others. For example,
+increased mobility may have a different effect when agents choose locations randomly
+compared with when they actively search for improved locations.
+We therefore expect that the interaction between these individual-level characteristics will
+affect both the final level of segregation and the time required for the system to stabilise.
+The experiment will not assume that increasing any particular variable must necessarily
+increase or decrease segregation. Instead, simulation results will be used to determine the
+direction and strength of these relationships.
+Experimental Design
+The experiment will use a factorial design so that the variables can be studied both
+independently and in combination.
+Independent Variables
+Preference diversity
+Three levels:
+1. No diversity
+2. Low diversity
+3. High diversity
+The mean preference threshold will remain constant between conditions where possible.
+Mobility
+Three levels:
+1. Low
+2. Medium
+3. High
+For example:
+Mobility level Search radius
+Low 2
+Mobility level Search radius
+Medium 5
+High 10
+Movement behaviour
+Three possible levels:
+1. Random
+2. Improving
+3. Best-fit
+If the third behaviour proves unnecessarily complex
