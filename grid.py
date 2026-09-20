@@ -120,10 +120,49 @@ class Grid:
         return cells
 
     def get_empty_cells_in_radius(self, row: int, col: int, radius: int):
-        """Return a list of empty (row, col) positions within *radius* of (row, col)."""
+
         cells = self.get_cells_in_radius(row, col, radius)
         empty_cells = []
         for r, c in cells:
             if self.is_empty(r, c):
                 empty_cells.append((r, c))
         return empty_cells
+
+    def move_occupant(self, from_row: int, from_col: int, to_row: int, to_col: int):
+        """Move the occupant at (from_row, from_col) to (to_row, to_col).
+        """
+        if not self.is_valid(from_row, from_col):
+            raise IndexError(f"Source position is out of bounds")
+        if not self.is_valid(to_row, to_col):
+            raise IndexError(f"Destination position is out of bounds")
+        if self.is_empty(from_row, from_col):
+            raise ValueError(f"Source cell is empty")
+        if not self.is_empty(to_row, to_col):
+            raise ValueError(f"Destination cell is already occupied")
+
+        self._cells[to_row][to_col] = self._cells[from_row][from_col]
+        self._cells[from_row][from_col] = None
+
+    def populate(self, occupants: list):
+        """Randomly place occupants onto the grid.
+
+        The number of occupants must not exceed the number of cells that
+        should be occupied given the vacancy_rate:
+            max_occupants = total_cells * (1 - vacancy_rate)
+        """
+        max_occupants = int(self.total_cells() * (1 - self.vacancy_rate))
+        if len(occupants) > max_occupants:
+            raise ValueError(
+                f"Too many occupants "
+                f"vacancy_rate={self.vacancy_rate} allows at most {max_occupants}"
+            )
+
+        all_positions = []
+        for r in range(self.height):
+            for c in range(self.width):
+                all_positions.append((r, c))
+        random.shuffle(all_positions)
+
+        for i in range(len(occupants)):
+            r, c = all_positions[i]
+            self._cells[r][c] = occupants[i]
