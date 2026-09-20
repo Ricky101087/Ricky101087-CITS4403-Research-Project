@@ -87,4 +87,43 @@ class Grid:
             return None
         return random.choice(empty)
 
-        
+    def get_moore_neighbours(self, row: int, col: int):
+        """Return a list of (row, col) positions for all valid Moore neighbours.
+
+        Considers the 8 surrounding cells. Cells outside the grid boundary are excluded.
+        """
+        neighbours = []
+        for dr in range(-1, 2):
+            for dc in range(-1, 2):
+                if dr == 0 and dc == 0:
+                    continue
+                nr, nc = row + dr, col + dc
+                if self.is_valid(nr, nc):
+                    neighbours.append((nr, nc))
+        return neighbours
+
+    def get_cells_in_radius(self, row: int, col: int, radius: int):
+        """Return a list of (row, col) positions within *radius* of (row, col).
+
+        Uses Chebyshev distance (square region), consistent with the Moore
+        neighbourhood. The cell itself is excluded. Cells outside the grid
+        boundary are excluded.
+        """
+        cells = []
+        for dr in range(-radius, radius + 1):
+            for dc in range(-radius, radius + 1):
+                if dr == 0 and dc == 0:
+                    continue
+                nr, nc = row + dr, col + dc
+                if self.is_valid(nr, nc):
+                    cells.append((nr, nc))
+        return cells
+
+    def get_empty_cells_in_radius(self, row: int, col: int, radius: int):
+        """Return a list of empty (row, col) positions within *radius* of (row, col)."""
+        cells = self.get_cells_in_radius(row, col, radius)
+        empty_cells = []
+        for r, c in cells:
+            if self.is_empty(r, c):
+                empty_cells.append((r, c))
+        return empty_cells
