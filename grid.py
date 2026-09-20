@@ -21,7 +21,12 @@ class Grid:
         self.height = height
         self.vacancy_rate = vacancy_rate
 
-        self._cells: list[list] = [[None] * width for _ in range(height)]
+        self._cells = []
+        for i in range(height):
+            row = []
+            for i in range(width):
+                row.append(None)
+            self._cells.append(row)
 
     def is_valid(self, row: int, col: int) -> bool:
         """Return True if (row, col) is within grid bounds."""
@@ -34,6 +39,25 @@ class Grid:
         """
         if not self.is_valid(row, col):
             raise IndexError(
-                f"Position ({row}, {col}) is out of bounds for grid {self.height}x{self.width}"
+                f"Position ({row}, {col}) is out of bounds"
             )
         return self._cells[row][col]
+
+    def set_cell(self, row: int, col: int, occupant):
+        """Set the occupant at (row, col) to occupant.
+        
+        Raises IndexError if (row, col) is out of bounds.
+        """
+        if not self.is_valid(row, col):
+            raise IndexError(
+                f"Position ({row}, {col}) is out of bounds"
+            )
+        self._cells[row][col] = occupant
+
+    def is_empty(self, row: int, col: int):
+
+        if not self.is_valid(row,col):
+            raise IndexError(
+                f"Position ({row}, {col}) is out of bounds"
+            )
+        return self._cells[row][col] is None
