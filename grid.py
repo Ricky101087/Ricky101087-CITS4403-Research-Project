@@ -2,17 +2,10 @@ import random
 
 
 class Grid:
-    """
-    A 2D grid environment for the Schelling segregation model.
-
-    Cells hold either None (empty) or an occupant object assigned later.
-    Coordinates are (row, col) with (0, 0) at the top-left.
-    """
-
+   
     def __init__(self, width: int = 40, height: int = 40, vacancy_rate: float = 0.10):
         """
-        Initialise an empty grid.
-       
+
         width        : number of columns
         height       : number of rows
         vacancy_rate : fraction of cells that remain empty (default 10%)
@@ -36,9 +29,7 @@ class Grid:
         return 0 <= row < self.height and 0 <= col < self.width
 
     def get_cell(self, row: int, col: int):
-        """Return the occupant at (row, col), or None if the cell is empty.
-
-        Raises IndexError if (row, col) is out of bounds.
+        """Return the occupant at (row, col), or None if the cell is empty. 
         """
         if not self.is_valid(row, col):
             raise IndexError(
@@ -49,7 +40,6 @@ class Grid:
     def set_cell(self, row: int, col: int, occupant):
         """Set the occupant at (row, col) to occupant.
         
-        Raises IndexError if (row, col) is out of bounds.
         """
         if not self.is_valid(row, col):
             raise IndexError(
