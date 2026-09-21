@@ -1,3 +1,5 @@
+import random
+
 class Agent:
     def __init__(
         self,
@@ -68,5 +70,72 @@ class Agent:
             self.mobility
         )
 
-    def step(self, grid):
-        raise NotImplementedError   
+    def choose_destination(self, grid):
+        """Choose an empty destination according to the movement behaviour."""
+        destinations = self.available_destinations(grid)
+
+        if not destinations:
+            return None
+
+        if self.behaviour == "random":
+            return random.choice(destinations)
+
+        if self.behaviour == "improving":
+            current_score = self.similarity_score(grid)
+            improving_destinations = []
+
+            for row, col in destinations:
+                new_score = self.similarity_score_at(grid, row, col)
+
+                if new_score > current_score:
+                    improving_destinations.append((row, col))
+
+            if not improving_destinations:
+                return None
+
+            return random.choice(improving_destinations)
+
+        if self.behaviour == "best_fit":
+            scored_destinations = []
+
+            for row, col in destinations:
+                score = self.similarity_score_at(grid, row, col)
+                scored_destinations.append((score, row, col))
+
+            best_score = max(
+                score for score, row, col in scored_destinations
+            )
+
+            best_destinations = []
+            for score, row, col in scored_destinations:
+                if score == best_score:
+                    best_destinations.append((row, col))
+
+            return random.choice(best_destinations)
+
+        return None
+
+    def step(self, grid) -> bool:
+        """Perform one movement decision and return whether the agent moved."""
+        if self.is_satisfied(grid):
+            return False
+
+        destination = self.choose_destination(grid)
+
+        if destination is None:
+            return False
+
+        new_row, new_col = destination
+        old_row, old_col = self.row, self.col
+
+        grid.move_occupant(
+            old_row,
+            old_col,
+            new_row,
+            new_col
+        )
+
+        self.row = new_row
+        self.col = new_col
+
+        return True
