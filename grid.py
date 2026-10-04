@@ -153,6 +153,8 @@ class Grid:
                 all_positions.append((r, c))
         random.shuffle(all_positions)
 
-        for i in range(len(occupants)):
+        for i, occupant in enumerate(occupants):
             r, c = all_positions[i]
-            self._cells[r][c] = occupants[i]
+            self._cells[r][c] = occupant
+            occupant.row = r
+            occupant.col = c
