@@ -1,3 +1,4 @@
+import random
 from grid import Grid
 from agent import Agent
 
@@ -13,6 +14,14 @@ class Simulation:
 
     def run_one_step(self):
         random.shuffle(self.agents)
+        moved = 0
         for agent in self.agents:
-            moved = sum(agent.step(self.grid))
+            if agent.step(self.grid):
+                moved += 1
         return moved
+
+    def segregation_index(self):
+        total = 0
+        for agent in self.agents:
+            total += agent.similarity_score(self.grid)
+        return total / len(self.agents)
