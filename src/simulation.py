@@ -1,6 +1,6 @@
 import random
-from grid import Grid
-from agent import Agent
+from .grid import Grid
+from .agent import Agent
 
 class Simulation:
 
@@ -21,6 +21,9 @@ class Simulation:
         self.history = []
         self.stabilised = False
         self.seed = seed
+
+        if seed is not None:
+            random.seed(seed)
 
         self.grid = Grid(width, height, vacancy_rate)
 
@@ -58,8 +61,6 @@ class Simulation:
         return satisfied / len(self.agents)
 
     def run(self):
-        if self.seed is not None:
-            random.seed(self.seed)
         for i in range(self.max_iterations):
             self.iterations += 1
             moved = self.run_one_step()
