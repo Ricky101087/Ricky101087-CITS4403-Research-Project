@@ -4,14 +4,37 @@ from agent import Agent
 
 class Simulation:
 
-    def __init__(self, grid: Grid, agents: list, max_iterations: int = 500, seed=None):
-        self.grid = grid
-        self.agents = agents
+    def __init__(
+        self,
+        width: int = 40,
+        height: int = 40,
+        vacancy_rate: float = 0.10,
+        group_split: float = 0.50,
+        preference: float = 0.50,
+        mobility: int = 5,
+        behaviour: str = "random",
+        max_iterations: int = 500,
+        seed=None
+    ):
         self.max_iterations = max_iterations
         self.iterations = 0
         self.history = []
         self.stabilised = False
         self.seed = seed
+
+        self.grid = Grid(width, height, vacancy_rate)
+
+        num_agents = int(self.grid.total_cells() * (1 - vacancy_rate))
+        num_a = int(num_agents * group_split)
+        num_b = num_agents - num_a
+
+        self.agents = []
+        for i in range(num_a):
+            self.agents.append(Agent("A", 0, 0, preference, mobility, behaviour))
+        for i in range(num_b):
+            self.agents.append(Agent("B", 0, 0, preference, mobility, behaviour))
+
+        self.grid.populate(self.agents)
 
     def run_one_step(self):
         random.shuffle(self.agents)
