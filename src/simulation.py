@@ -10,9 +10,9 @@ class Simulation:
         self.iterations = 0
         self.history = []
         self.stabilised = False
-    
+
     def run_one_step(self):
-        pass
-        
-
-
+        random.shuffle(self.agents)
+        for agent in self.agents:
+            moved = sum(agent.step(self.grid))
+        return moved
