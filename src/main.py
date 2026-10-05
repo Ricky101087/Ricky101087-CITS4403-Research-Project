@@ -1,4 +1,8 @@
-from simulation import Simulation
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from src.simulation import Simulation
 
 sim = Simulation(preference=0.5, mobility=5, behaviour="random", seed=42)
 sim.run()
