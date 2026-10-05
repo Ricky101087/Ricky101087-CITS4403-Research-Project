@@ -25,3 +25,12 @@ class Simulation:
         for agent in self.agents:
             total += agent.similarity_score(self.grid)
         return total / len(self.agents)
+
+    def run(self):
+        for i in range(self.max_iterations):
+            self.iterations += 1
+            moved = self.run_one_step()
+            self.history.append(self.segregation_index())
+            if moved == 0:
+                self.stabilised = True
+                break
