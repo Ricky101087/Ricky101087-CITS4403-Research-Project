@@ -150,3 +150,34 @@ Three possible levels:
 2. Improving
 3. Best-fit
 If the third behaviour proves unnecessarily complex
+
+## Optional extension: social influence
+
+The simulation can optionally allow an agent's preference threshold to move
+toward the mean preference of its occupied Moore neighbours after each
+iteration. It is disabled by default so that baseline experiments retain their
+original behaviour.
+
+For agent `i`, the update is:
+
+`q_i(new) = q_i(old) + influence_strength * (neighbour_mean - q_i(old))`
+
+All new preferences are calculated from the same pre-update snapshot and are
+then applied together. This avoids an ordering effect in which an agent could
+observe a neighbour that had already been updated during the same iteration.
+Agents without occupied neighbours keep their existing preference, and all
+preferences are constrained to the range `[0, 1]`.
+
+Example configuration:
+
+```python
+sim = Simulation(
+    social_influence=True,
+    influence_strength=0.10,
+    seed=42,
+)
+```
+
+Social influence only changes outcomes when agents begin with different
+preference thresholds. With identical starting preferences, the neighbour
+mean is identical to each agent's current preference, so no drift occurs.
