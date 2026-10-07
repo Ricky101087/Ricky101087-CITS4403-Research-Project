@@ -38,6 +38,24 @@ class SimulationInitTests(unittest.TestCase):
         self.assertEqual(sim.history, [])
         self.assertFalse(sim.stabilised)
 
+    def test_social_influence_defaults_to_disabled(self):
+        sim = Simulation()
+        self.assertFalse(sim.social_influence)
+        self.assertEqual(sim.influence_strength, 0.10)
+
+    def test_social_influence_configuration(self):
+        sim = Simulation(social_influence=True, influence_strength=0.25)
+        self.assertTrue(sim.social_influence)
+        self.assertEqual(sim.influence_strength, 0.25)
+
+    def test_invalid_social_influence_configuration(self):
+        with self.assertRaises(ValueError):
+            Simulation(social_influence=1)
+        for invalid_strength in (-0.1, 1.1, "high", True):
+            with self.subTest(influence_strength=invalid_strength):
+                with self.assertRaises(ValueError):
+                    Simulation(influence_strength=invalid_strength)
+
 
 class SimulationStepTests(unittest.TestCase):
 
@@ -53,6 +71,76 @@ class SimulationStepTests(unittest.TestCase):
         for agent in sim.agents:
             self.assertTrue(sim.grid.is_valid(agent.row, agent.col))
             self.assertIs(sim.grid.get_cell(agent.row, agent.col), agent)
+
+    def test_social_influence_is_disabled_by_default(self):
+        sim = Simulation(width=2, height=2, vacancy_rate=0.25, mobility=0)
+        original_preferences = [agent.preference for agent in sim.agents]
+        sim.run_one_step()
+        self.assertEqual(
+            [agent.preference for agent in sim.agents],
+            original_preferences
+        )
+
+    def test_social_influence_uses_simultaneous_updates(self):
+        sim = Simulation(
+            width=2,
+            height=2,
+            vacancy_rate=0.25,
+            mobility=0,
+            social_influence=True,
+            influence_strength=0.5,
+            seed=1
+        )
+        sim.agents[0].preference = 0.0
+        sim.agents[1].preference = 1.0
+        sim.agents[2].preference = 1.0
+
+        updated = sim.apply_social_influence()
+
+        self.assertEqual(updated, 3)
+        self.assertAlmostEqual(sim.agents[0].preference, 0.5)
+        self.assertAlmostEqual(sim.agents[1].preference, 0.75)
+        self.assertAlmostEqual(sim.agents[2].preference, 0.75)
+
+    def test_run_one_step_applies_social_influence(self):
+        sim = Simulation(
+            width=2,
+            height=2,
+            vacancy_rate=0.25,
+            mobility=0,
+            social_influence=True,
+            influence_strength=0.5,
+            seed=1
+        )
+        first, second, third = sim.agents
+        first.preference = 0.0
+        second.preference = 1.0
+        third.preference = 1.0
+
+        moved = sim.run_one_step()
+
+        self.assertEqual(moved, 0)
+        self.assertEqual(sim.last_preference_updates, 3)
+        self.assertAlmostEqual(first.preference, 0.5)
+        self.assertAlmostEqual(second.preference, 0.75)
+        self.assertAlmostEqual(third.preference, 0.75)
+
+    def test_social_influence_leaves_isolated_agent_unchanged(self):
+        sim = Simulation(
+            width=3,
+            height=3,
+            vacancy_rate=8 / 9,
+            social_influence=True,
+            influence_strength=0.5,
+            seed=1
+        )
+        agent = sim.agents[0]
+        agent.preference = 0.4
+
+        updated = sim.apply_social_influence()
+
+        self.assertEqual(updated, 0)
+        self.assertEqual(agent.preference, 0.4)
 
 
 class SimulationStoppingTests(unittest.TestCase):
@@ -74,6 +162,30 @@ class SimulationStoppingTests(unittest.TestCase):
         sim.run()
         self.assertEqual(len(sim.history), sim.iterations)
 
+    def test_social_influence_prevents_early_stopping_while_preferences_change(self):
+        sim = Simulation(
+            width=2,
+            height=2,
+            vacancy_rate=0.25,
+            mobility=0,
+            social_influence=True,
+            influence_strength=0.5,
+            max_iterations=2,
+            seed=1
+        )
+        sim.agents[0].preference = 0.0
+        sim.agents[1].preference = 1.0
+        sim.agents[2].preference = 1.0
+
+        sim.run()
+
+        self.assertEqual(sim.iterations, 2)
+        self.assertFalse(sim.stabilised)
+        self.assertTrue(all(entry["moves"] == 0 for entry in sim.history))
+        self.assertTrue(
+            all(entry["preference_updates"] > 0 for entry in sim.history)
+        )
+
 
 class SimulationMetricsTests(unittest.TestCase):
 
@@ -82,6 +194,7 @@ class SimulationMetricsTests(unittest.TestCase):
         sim.run()
         entry = sim.history[0]
         self.assertIn("moves", entry)
+        self.assertIn("preference_updates", entry)
         self.assertIn("satisfaction_rate", entry)
         self.assertIn("segregation_index", entry)
 
