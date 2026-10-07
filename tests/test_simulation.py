@@ -1,5 +1,6 @@
 import sys
 import os
+import random
 import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -55,6 +56,38 @@ class SimulationInitTests(unittest.TestCase):
             with self.subTest(influence_strength=invalid_strength):
                 with self.assertRaises(ValueError):
                     Simulation(influence_strength=invalid_strength)
+
+    def test_preference_sequence_is_assigned_to_agents(self):
+        preferences = [0.2, 0.5, 0.8]
+        sim = Simulation(
+            width=2,
+            height=2,
+            vacancy_rate=0.25,
+            preference=preferences,
+            seed=1,
+        )
+        self.assertEqual(
+            [agent.preference for agent in sim.agents],
+            preferences,
+        )
+
+    def test_preference_sequence_must_match_agent_count(self):
+        with self.assertRaisesRegex(ValueError, "exactly 3 values"):
+            Simulation(
+                width=2,
+                height=2,
+                vacancy_rate=0.25,
+                preference=[0.2, 0.8],
+            )
+
+    def test_preference_sequence_values_are_validated(self):
+        with self.assertRaisesRegex(ValueError, "between 0.0 and 1.0"):
+            Simulation(
+                width=2,
+                height=2,
+                vacancy_rate=0.25,
+                preference=[0.2, 0.5, 1.1],
+            )
 
 
 class SimulationStepTests(unittest.TestCase):
@@ -212,6 +245,23 @@ class SimulationMetricsTests(unittest.TestCase):
 
 
 class SimulationSeedTests(unittest.TestCase):
+
+    def test_simulation_does_not_change_global_random_state(self):
+        random.seed(12345)
+        expected = random.Random(12345).random()
+
+        Simulation(width=10, height=10, vacancy_rate=0.1, seed=99)
+
+        self.assertEqual(random.random(), expected)
+
+    def test_same_seed_is_reproducible_when_constructed_before_running(self):
+        sim1 = Simulation(width=10, height=10, vacancy_rate=0.1, seed=99)
+        sim2 = Simulation(width=10, height=10, vacancy_rate=0.1, seed=99)
+
+        sim1.run()
+        sim2.run()
+
+        self.assertEqual(sim1.history, sim2.history)
 
     def test_same_seed_produces_same_history(self):
         sim1 = Simulation(width=10, height=10, vacancy_rate=0.1, seed=99)

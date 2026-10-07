@@ -3,7 +3,13 @@ import random
 
 class Grid:
    
-    def __init__(self, width: int = 40, height: int = 40, vacancy_rate: float = 0.10):
+    def __init__(
+        self,
+        width: int = 40,
+        height: int = 40,
+        vacancy_rate: float = 0.10,
+        rng=None,
+    ):
         """
 
         width        : number of columns
@@ -26,6 +32,7 @@ class Grid:
         self.width = width
         self.height = height
         self.vacancy_rate = vacancy_rate
+        self.rng = rng if rng is not None else random
 
         self._cells = []
         for i in range(height):
@@ -85,7 +92,7 @@ class Grid:
         empty = self.empty_cells()
         if not empty:
             return None
-        return random.choice(empty)
+        return self.rng.choice(empty)
 
     def get_moore_neighbours(self, row: int, col: int):
         """Return a list of (row, col) positions for all valid Moore neighbours.
@@ -161,7 +168,7 @@ class Grid:
         for r in range(self.height):
             for c in range(self.width):
                 all_positions.append((r, c))
-        random.shuffle(all_positions)
+        self.rng.shuffle(all_positions)
 
         for i, occupant in enumerate(occupants):
             r, c = all_positions[i]

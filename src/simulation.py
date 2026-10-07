@@ -1,4 +1,5 @@
 import random
+from collections.abc import Sequence
 from .grid import Grid
 from .agent import Agent
 
@@ -10,7 +11,7 @@ class Simulation:
         height: int = 40,
         vacancy_rate: float = 0.10,
         group_split: float = 0.50,
-        preference: float = 0.50,
+        preference: float | Sequence[float] = 0.50,
         mobility: int = 5,
         behaviour: str = "random",
         social_influence: bool = False,
@@ -33,29 +34,72 @@ class Simulation:
         self.history = []
         self.stabilised = False
         self.seed = seed
+        self.rng = random.Random(seed)
         self.social_influence = social_influence
         self.influence_strength = float(influence_strength)
         self.last_preference_updates = 0
 
-        if seed is not None:
-            random.seed(seed)
-
-        self.grid = Grid(width, height, vacancy_rate)
+        self.grid = Grid(width, height, vacancy_rate, rng=self.rng)
 
         num_agents = int(self.grid.total_cells() * (1 - vacancy_rate))
         num_a = int(num_agents * group_split)
-        num_b = num_agents - num_a
+        preferences = self._normalise_preferences(preference, num_agents)
 
         self.agents = []
-        for i in range(num_a):
-            self.agents.append(Agent("A", 0, 0, preference, mobility, behaviour))
-        for i in range(num_b):
-            self.agents.append(Agent("B", 0, 0, preference, mobility, behaviour))
+        for index in range(num_a):
+            self.agents.append(
+                Agent(
+                    "A", 0, 0, preferences[index], mobility, behaviour,
+                    rng=self.rng,
+                )
+            )
+        for index in range(num_a, num_agents):
+            self.agents.append(
+                Agent(
+                    "B", 0, 0, preferences[index], mobility, behaviour,
+                    rng=self.rng,
+                )
+            )
 
         self.grid.populate(self.agents)
 
+    @staticmethod
+    def _normalise_preferences(preference, count: int) -> list[float]:
+        """Return one validated preference value for every agent."""
+        if (
+            isinstance(preference, (int, float))
+            and not isinstance(preference, bool)
+        ):
+            values = [preference] * count
+        elif (
+            isinstance(preference, Sequence)
+            and not isinstance(preference, (str, bytes, bytearray))
+        ):
+            values = list(preference)
+            if len(values) != count:
+                raise ValueError(
+                    f"preference sequence must contain exactly {count} values"
+                )
+        else:
+            raise ValueError(
+                "preference must be a number or a sequence of numbers"
+            )
+
+        normalised = []
+        for value in values:
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not 0.0 <= value <= 1.0
+            ):
+                raise ValueError(
+                    "each preference must be a number between 0.0 and 1.0"
+                )
+            normalised.append(float(value))
+        return normalised
+
     def run_one_step(self):
-        random.shuffle(self.agents)
+        self.rng.shuffle(self.agents)
         moved = 0
         for agent in self.agents:
             if agent.step(self.grid):

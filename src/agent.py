@@ -8,7 +8,8 @@ class Agent:
         col: int,
         preference: float,
         mobility: int,
-        behaviour: str
+        behaviour: str,
+        rng=None,
     ):
         if not isinstance(group, str) or group not in {"A", "B"}:
             raise ValueError("group must be 'A' or 'B'")
@@ -38,6 +39,7 @@ class Agent:
         self.preference = preference
         self.mobility = mobility
         self.behaviour = behaviour
+        self.rng = rng if rng is not None else random
 
     def similarity_score(self, grid) -> float:
         """Return proportion of occupied neighbours that share this agent's group.
@@ -100,7 +102,7 @@ class Agent:
             return None
 
         if self.behaviour == "random":
-            return random.choice(destinations)
+            return self.rng.choice(destinations)
 
         if self.behaviour == "improving":
             current_score = self.similarity_score(grid)
@@ -115,7 +117,7 @@ class Agent:
             if not improving_destinations:
                 return None
 
-            return random.choice(improving_destinations)
+            return self.rng.choice(improving_destinations)
 
         if self.behaviour == "best_fit":
             scored_destinations = []
@@ -133,7 +135,7 @@ class Agent:
                 if score == best_score:
                     best_destinations.append((row, col))
 
-            return random.choice(best_destinations)
+            return self.rng.choice(best_destinations)
 
         return None
 
