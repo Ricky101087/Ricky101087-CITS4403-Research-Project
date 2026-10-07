@@ -10,17 +10,25 @@ class Agent:
         mobility: int,
         behaviour: str
     ):
-        if group not in {"A", "B"}:
+        if not isinstance(group, str) or group not in {"A", "B"}:
             raise ValueError("group must be 'A' or 'B'")
 
-        if not 0.0 <= preference <= 1.0:
+        if (
+            isinstance(preference, bool)
+            or not isinstance(preference, (int, float))
+            or not 0.0 <= preference <= 1.0
+        ):
             raise ValueError("preference must be between 0.0 and 1.0")
 
-        if not isinstance(mobility, int) or mobility < 0:
+        if (
+            isinstance(mobility, bool)
+            or not isinstance(mobility, int)
+            or mobility < 0
+        ):
             raise ValueError("mobility must be a non-negative integer")
 
         valid_behaviours = {"random", "improving", "best_fit"}
-        if behaviour not in valid_behaviours:
+        if not isinstance(behaviour, str) or behaviour not in valid_behaviours:
             raise ValueError(
                 "behaviour must be 'random', 'improving', or 'best_fit'"
             )
