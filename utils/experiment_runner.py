@@ -175,12 +175,20 @@ def run_experiment(
     config: ExperimentConfig,
 ) -> tuple[dict[str, object], list[dict[str, object]]]:
     """Run one configuration and return its summary and iteration history."""
+    num_agents = int(
+        config.width * config.height * (1 - config.vacancy_rate)
+    )
+    initial_preferences = generate_preferences(
+        config.preference_diversity,
+        num_agents,
+        config.seed,
+    )
     simulation = Simulation(
         width=config.width,
         height=config.height,
         vacancy_rate=config.vacancy_rate,
         group_split=config.group_split,
-        preference=0.5,
+        preference=initial_preferences,
         mobility=config.mobility,
         behaviour=config.behaviour,
         social_influence=config.social_influence,
@@ -188,14 +196,6 @@ def run_experiment(
         max_iterations=config.max_iterations,
         seed=config.seed,
     )
-
-    initial_preferences = generate_preferences(
-        config.preference_diversity,
-        len(simulation.agents),
-        config.seed,
-    )
-    for agent, preference in zip(simulation.agents, initial_preferences):
-        agent.preference = preference
 
     simulation.run()
     run_id = make_run_id(config)
