@@ -10,7 +10,17 @@ class Grid:
         height       : number of rows
         vacancy_rate : fraction of cells that remain empty (default 10%)
         """
-        if not (0.0 < vacancy_rate < 1.0):
+        if isinstance(width, bool) or not isinstance(width, int) or width <= 0:
+            raise ValueError("width must be a positive integer")
+
+        if isinstance(height, bool) or not isinstance(height, int) or height <= 0:
+            raise ValueError("height must be a positive integer")
+
+        if (
+            isinstance(vacancy_rate, bool)
+            or not isinstance(vacancy_rate, (int, float))
+            or not 0.0 < vacancy_rate < 1.0
+        ):
             raise ValueError("vacancy_rate must be strictly between 0 and 1")
 
         self.width = width
