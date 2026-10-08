@@ -83,6 +83,7 @@ SUMMARY_FIELDS = (
     "final_segregation_index",
     "iterations",
     "stabilised",
+    "stabilisation_time",
     "final_satisfaction_rate",
     "total_moves",
     "total_preference_updates",
@@ -213,6 +214,7 @@ def run_experiment(
         "final_segregation_index": final_state["segregation_index"],
         "iterations": simulation.iterations,
         "stabilised": simulation.stabilised,
+        "stabilisation_time": simulation.iterations if simulation.stabilised else None,
         "final_satisfaction_rate": final_state["satisfaction_rate"],
         "total_moves": sum(entry["moves"] for entry in simulation.history),
         "total_preference_updates": sum(

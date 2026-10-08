@@ -19,6 +19,34 @@ class Simulation:
         max_iterations: int = 500,
         seed=None
     ):
+        if (
+            isinstance(width, bool)
+            or not isinstance(width, int)
+            or width < 1
+        ):
+            raise ValueError("width must be a positive integer")
+
+        if (
+            isinstance(height, bool)
+            or not isinstance(height, int)
+            or height < 1
+        ):
+            raise ValueError("height must be a positive integer")
+
+        if (
+            isinstance(group_split, bool)
+            or not isinstance(group_split, (int, float))
+            or not 0.0 <= group_split <= 1.0
+        ):
+            raise ValueError("group_split must be between 0.0 and 1.0")
+
+        if (
+            isinstance(max_iterations, bool)
+            or not isinstance(max_iterations, int)
+            or max_iterations < 1
+        ):
+            raise ValueError("max_iterations must be a positive integer")
+
         if not isinstance(social_influence, bool):
             raise ValueError("social_influence must be a boolean")
 
@@ -42,6 +70,10 @@ class Simulation:
         self.grid = Grid(width, height, vacancy_rate, rng=self.rng)
 
         num_agents = int(self.grid.total_cells() * (1 - vacancy_rate))
+        if num_agents == 0:
+            raise ValueError(
+                "vacancy_rate leaves no room for agents; lower vacancy_rate or increase grid size"
+            )
         num_a = int(num_agents * group_split)
         preferences = self._normalise_preferences(preference, num_agents)
 
@@ -141,12 +173,16 @@ class Simulation:
         return len(updates)
 
     def segregation_index(self):
+        if not self.agents:
+            return 0.0
         total = 0
         for agent in self.agents:
             total += agent.similarity_score(self.grid)
         return total / len(self.agents)
 
     def satisfaction_rate(self):
+        if not self.agents:
+            return 0.0
         satisfied = 0
         for agent in self.agents:
             if agent.is_satisfied(self.grid):
