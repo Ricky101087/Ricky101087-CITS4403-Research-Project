@@ -27,6 +27,41 @@ class SimulationInitTests(unittest.TestCase):
         self.assertEqual(num_a + num_b, len(sim.agents))
         self.assertAlmostEqual(num_a / len(sim.agents), 0.5, delta=0.05)
 
+    def test_group_split_rejects_invalid_values(self):
+        for value in (
+            -0.1, -0.001, 1.1, True, False, None, "0.5",
+            float("nan"), float("inf"), float("-inf"),
+        ):
+            with self.subTest(group_split=value):
+                with self.assertRaisesRegex(ValueError, "group_split"):
+                    Simulation(width=3, height=3, group_split=value)
+
+    def test_group_split_endpoints_preserve_population(self):
+        for split, expected_group in ((0, "B"), (1, "A")):
+            with self.subTest(group_split=split):
+                sim = Simulation(
+                    width=2, height=2, vacancy_rate=0.25,
+                    group_split=split, seed=1,
+                )
+                self.assertEqual(len(sim.agents), 3)
+                self.assertTrue(
+                    all(agent.group == expected_group for agent in sim.agents)
+                )
+
+    def test_max_iterations_rejects_invalid_values(self):
+        for value in (0, -1, True, False, 1.5, None, "10"):
+            with self.subTest(max_iterations=value):
+                with self.assertRaisesRegex(ValueError, "max_iterations"):
+                    Simulation(width=3, height=3, max_iterations=value)
+
+    def test_zero_population_is_rejected_before_running(self):
+        for size, vacancy_rate in ((1, 0.1), (2, 0.99)):
+            with self.subTest(size=size, vacancy_rate=vacancy_rate):
+                with self.assertRaisesRegex(ValueError, "no room for agents"):
+                    Simulation(
+                        width=size, height=size, vacancy_rate=vacancy_rate,
+                    )
+
     def test_agent_positions_are_on_grid(self):
         sim = Simulation(width=10, height=10, vacancy_rate=0.1)
         for agent in sim.agents:
@@ -179,16 +214,27 @@ class SimulationStepTests(unittest.TestCase):
 class SimulationStoppingTests(unittest.TestCase):
 
     def test_stops_at_max_iterations(self):
-        sim = Simulation(width=10, height=10, vacancy_rate=0.1, max_iterations=3)
+        # Opposite-group agents on a 2x2 grid can always reach an empty cell,
+        # but neither can acquire a same-group neighbour by moving.
+        sim = Simulation(
+            width=2, height=2, vacancy_rate=0.5, preference=0.5,
+            mobility=1, behaviour="random", max_iterations=3, seed=1,
+        )
         sim.run()
-        self.assertLessEqual(sim.iterations, 3)
+        self.assertEqual(sim.iterations, 3)
+        self.assertFalse(sim.stabilised)
+        self.assertEqual([entry["moves"] for entry in sim.history], [2, 2, 2])
 
     def test_stabilised_flag_set_when_no_moves(self):
-        sim = Simulation(width=10, height=10, vacancy_rate=0.1, seed=1)
+        sim = Simulation(
+            width=2, height=2, vacancy_rate=0.25, preference=0.0,
+            max_iterations=3, seed=1,
+        )
         sim.run()
-        if sim.stabilised:
-            last = sim.history[-1]
-            self.assertEqual(last["moves"], 0)
+        self.assertTrue(sim.stabilised)
+        self.assertEqual(sim.iterations, 1)
+        self.assertEqual(sim.history[0]["moves"], 0)
+        self.assertEqual(sim.history[0]["preference_updates"], 0)
 
     def test_history_length_matches_iterations(self):
         sim = Simulation(width=10, height=10, vacancy_rate=0.1, max_iterations=5)
@@ -221,6 +267,31 @@ class SimulationStoppingTests(unittest.TestCase):
 
 
 class SimulationMetricsTests(unittest.TestCase):
+
+    @staticmethod
+    def mixed_three_agent_fixture():
+        # Every occupied cell in a 2x2 grid neighbours the other two agents.
+        # The two A agents each score 1/2; the single B agent scores zero.
+        return Simulation(
+            width=2, height=2, vacancy_rate=0.25, group_split=2 / 3,
+            preference=0.5, mobility=0, seed=1,
+        )
+
+    def test_segregation_matches_hand_calculated_neighbour_fractions(self):
+        sim = self.mixed_three_agent_fixture()
+        self.assertAlmostEqual(sim.segregation_index(), 1 / 3)
+
+    def test_satisfaction_matches_hand_calculated_threshold_count(self):
+        sim = self.mixed_three_agent_fixture()
+        self.assertAlmostEqual(sim.satisfaction_rate(), 2 / 3)
+
+    def test_empty_agent_metrics_have_defined_values(self):
+        sim = Simulation(width=2, height=2, vacancy_rate=0.5, seed=1)
+        for agent in sim.agents:
+            sim.grid.set_cell(agent.row, agent.col, None)
+        sim.agents.clear()
+        self.assertEqual(sim.segregation_index(), 0.0)
+        self.assertEqual(sim.satisfaction_rate(), 0.0)
 
     def test_history_entry_has_required_keys(self):
         sim = Simulation(width=10, height=10, vacancy_rate=0.1, max_iterations=1)
