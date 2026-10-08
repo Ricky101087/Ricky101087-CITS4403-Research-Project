@@ -29,7 +29,7 @@ PREFERENCE_BOUNDS = {
 MOBILITY_LEVELS = (1, 3, 5)
 BEHAVIOURS = ("random", "improving", "best_fit")
 PILOT_SEEDS = tuple(range(10))
-FINAL_SEEDS = tuple(range(30))
+FINAL_SEEDS = tuple(range(10))
 
 
 @dataclass(frozen=True)
