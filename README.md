@@ -11,11 +11,11 @@ not claim that these extensions are individually new to the research literature.
 ## Current project status
 
 The repository contains the model, experiment runner, tests, and analysis notebook.
-The supplied CSV files are **exploratory pilot and smoke data**. The pilot uses a
-150-iteration cap, whereas the current runner defaults to 500. Final `main` and
-`social` datasets have not yet been generated. The notebook identifies the selected
-dataset and its limitations; exploratory observations must not be presented as
-completed final-experiment conclusions.
+The supplied CSV files include the exploratory pilot and the validated formal
+`social` design. The pilot uses a 150-iteration cap, whereas the formal design uses
+500 iterations. The notebook identifies the selected dataset, validates it before
+analysis, and records the data and source fingerprints used for the reported
+results.
 
 ## Setup
 
@@ -185,13 +185,13 @@ combinations with influence disabled/enabled. `smoke` uses homogeneous/high
 diversity, mobility 1, random behaviour, and both influence settings. All designs
 use vacancy 0.10 and group split 0.50.
 
-When ready to generate the longer experiments, run `social` once for both the
-main analysis and the influence comparison. Its 270 influence-off runs are the
-same configurations required by `main`; the notebook uses that subset directly.
-This is separate from the quick checks above; **final runs are still pending**:
+The formal `social` design was run once for both the main analysis and the influence
+comparison. Its 270 influence-off runs are the same configurations required by
+`main`; the notebook uses that subset directly. To reproduce the run without
+overwriting the checked-in files, use a new output directory:
 
 ```powershell
-.\.venv\Scripts\python.exe -B -m utils.experiment_runner --design social --output-dir data
+.\.venv\Scripts\python.exe -B -m utils.experiment_runner --design social --output-dir tmp/social-current
 ```
 
 If only the influence-off study is needed, use `--design main` instead (270
@@ -224,8 +224,14 @@ The shorter cap differs from the current runner's 500-iteration design. The
 checked-in smoke files are workflow examples. Keep these datasets labelled by
 their actual configurations; do not relabel the 150-cap pilot as a completed
 500-cap experiment or combine repeated conditions across them as independent
-replicates. No `main_experiment_*` or `social_influence_*` final CSVs are supplied
-at this stage.
+replicates. The checked-in `data/social_influence_results.csv` and
+`data/social_influence_history.csv` contain the formal social design: 540 runs,
+184,881 history rows, seeds 0-9, a 40 x 40 grid, and a 500-iteration cap.
+Validation confirms all 54 crossed conditions contain ten seeds each, with 176 runs
+stabilising and 364 reaching the cap. The data were generated from source commit
+`9fb33d9` and validated before the executed notebook was saved. The complete
+run command, environment details, validation counts and SHA-256 fingerprints are
+recorded in `data/social_influence_manifest.json`.
 
 ## Open and run the analysis notebook
 
@@ -241,12 +247,11 @@ macOS/Linux:
 .venv/bin/python -m jupyter notebook notebooks/experiment_analysis.ipynb
 ```
 
-Choose the project's environment as the kernel if prompted. The notebook starts
-with explicit dataset settings: `DATASET = 'pilot'` and `MAX_ITERATIONS = 150` for
-the supplied exploratory pilot. Run the cells in order. Once the corresponding
-formal data exists, select `DATASET = 'main'` or `'social'` and
-`MAX_ITERATIONS = 500`. If results were written elsewhere, set the notebook's data
-directory to that location.
+Choose the project's environment as the kernel if prompted. The saved notebook
+selects the validated formal dataset with `DATASET = 'social'` and
+`MAX_ITERATIONS = 500`. To inspect the exploratory pilot instead, select
+`DATASET = 'pilot'` and `MAX_ITERATIONS = 150`. If results were written elsewhere,
+set the notebook's data directory to that location.
 
 With `SAVE_FIGURES = True` (the default), plot PNGs are exported to
 `notebooks/figures/<dataset>_<cap>/`. Re-running that selection replaces its
@@ -269,9 +274,9 @@ remain relevant when interpreting the plots. Per-condition summaries, observed
 stopping time, stabilisation proportions, and time conditional on stabilising
 answer different questions and are labelled separately.
 
-For the final hand-in, generate and validate the agreed formal datasets, rerun the
-notebook, save its outputs, and write conclusions supported by those results.
-The current exploratory discussion does not establish final hypothesis outcomes.
+For the final hand-in, validate the checked-in formal dataset, rerun the notebook,
+save its outputs, and write conclusions supported by those results. The report must
+distinguish observed stabilisation from runs censored at the iteration cap.
 
 ## Repository layout
 
