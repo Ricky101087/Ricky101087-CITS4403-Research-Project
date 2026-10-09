@@ -1,0 +1,21 @@
+{
+  "design": "social",
+  "runs": 540,
+  "history_rows": 184881,
+  "seeds": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "conditions": 54,
+  "iteration_cap": 500,
+  "stabilised_runs": 176,
+  "capped_runs": 364,
+  "grid": "40x40",
+  "source_commit": "9fb33d92d4fbdbae31c1336a38720da4319c4421",
+  "command": ".\\.venv\\Scripts\\python.exe -u -B -m utils.experiment_runner --design social --output-dir data",
+  "python": "3.14.4",
+  "numpy": "2.5.3",
+  "matplotlib": "3.11.2",
+  "results_file": "social_influence_results.csv",
+  "results_sha256": "f5684432bbf425853c993c960723bc634dba1fe858169ab49b27df6dc5533326",
+  "history_file": "social_influence_history.csv",
+  "history_sha256": "caf56c17684534bce056b4400e97840c2e3de699fe03b2ea0706bd70b0875b3b",
+  "validation": "utils.analysis_validation.load_dataset('data', design='social', max_iterations=500)"
+}
