@@ -51,7 +51,11 @@ class ExperimentConfig:
             raise ValueError(
                 "preference_diversity must be homogeneous, low, or high"
             )
-        if self.mobility not in MOBILITY_LEVELS:
+        if (
+            isinstance(self.mobility, bool)
+            or not isinstance(self.mobility, int)
+            or self.mobility not in MOBILITY_LEVELS
+        ):
             raise ValueError("mobility must be one of 1, 3, or 5")
         if self.behaviour not in BEHAVIOURS:
             raise ValueError(
@@ -59,7 +63,11 @@ class ExperimentConfig:
             )
         if not isinstance(self.seed, int) or isinstance(self.seed, bool):
             raise ValueError("seed must be an integer")
-        if not isinstance(self.max_iterations, int) or self.max_iterations <= 0:
+        if (
+            isinstance(self.max_iterations, bool)
+            or not isinstance(self.max_iterations, int)
+            or self.max_iterations <= 0
+        ):
             raise ValueError("max_iterations must be a positive integer")
 
 
